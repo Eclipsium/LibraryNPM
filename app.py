@@ -13,7 +13,7 @@ db.init_app(flask_app)
 with flask_app.app_context():
     db.create_all()
 
-flask_app.register_blueprint(book_bp, url_prefix='/api', description='Operations on books')
+flask_app.register_blueprint(book_bp, url_prefix='/api', description='Operations with books')
 
 
 if __name__ == "__main__":

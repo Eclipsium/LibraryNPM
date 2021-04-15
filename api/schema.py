@@ -1,5 +1,5 @@
 from .models import Book
-from .. import ma
+from .. import ma, db
 
 
 class BookSchema(ma.SQLAlchemyAutoSchema):
@@ -7,3 +7,5 @@ class BookSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = Book
+        load_instance = True
+        sqla_session = db.session # noqa

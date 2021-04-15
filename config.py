@@ -18,7 +18,7 @@ class BaseConfig:
 class DevelopmentConfig(BaseConfig):
     CONFIG_NAME = "dev"
     SECRET_KEY = os.getenv(
-        "DEV_SECRET_KEY", "You can't see California without Marlon Widgeto's eyes"
+        "DEV_SECRET_KEY", "NPM это не пакетный менеджер Node.js, а компания, которая меня рекрутит :D"
     )
     FLASK_DEBUG = True
     TESTING = False
@@ -26,14 +26,14 @@ class DevelopmentConfig(BaseConfig):
 
 class TestingConfig(BaseConfig):
     CONFIG_NAME = "test"
-    SECRET_KEY = os.getenv("TEST_SECRET_KEY", "Thanos did nothing wrong")
+    SECRET_KEY = os.getenv("TEST_SECRET_KEY", "Если сразу не получилось хорошо, назовите это версией 1.0")
     FLASK_DEBUG = True
     TESTING = True
 
 
 class ProductionConfig(BaseConfig):
     CONFIG_NAME = "prod"
-    SECRET_KEY = os.getenv("PROD_SECRET_KEY", "I'm Ron Burgundy?")
+    SECRET_KEY = os.getenv("PROD_SECRET_KEY", "Чтобы понять рекурсию, нужно сперва понять рекурсию.")
     FLASK_DEBUG = False
     TESTING = False
     SQLALCHEMY_DATABASE_URI = "some prod url"

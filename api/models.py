@@ -15,5 +15,5 @@ class Book(db.Model):
     author = Column(String(100))
     isbn = Column(String(20), unique=True, index=True)
 
-    def __repr__(self):
-        return f'{self.title} - {self.ISBN}'
+    def __str__(self):
+        return f'{self.title} - {self.isbn}'
