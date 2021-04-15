@@ -1,11 +1,7 @@
-from typing import List, Any
-
-from sqlalchemy.orm import load_only
-
-from .. import db
+from typing import List
 
 from .models import Book
-from .schema import BookSchema
+from .. import db
 
 
 class BookService:
@@ -19,7 +15,7 @@ class BookService:
 
     @staticmethod
     def get_id_by_isbn(book_isbn) -> int:
-        book = Book.query.filter_by(isbn=book_isbn).options(load_only('book_id')).first()
+        book = Book.query.filter_by(isbn=book_isbn).first()
         return int(book.book_id) if book else 0
 
     @staticmethod
@@ -28,17 +24,20 @@ class BookService:
         return book
 
     @staticmethod
-    def create(params: BookSchema) -> Book:
+    def create(params: Book) -> Book:
+        isbn = Book.query.filter_by(isbn=params.isbn).first()
+        if isbn:
+            return None # noqa
+
         new_book = Book(
-            title=params["title"],
-            publisher=params["publisher"],
-            genre=params["genre"],
-            page_count=params["page_count"],
-            author=params["author"],
-            isbn=params["isbn"]
+            title=params.title,
+            publisher=params.publisher,
+            genre=params.genre,
+            page_count=params.page_count,
+            author=params.author,
+            isbn=params.isbn
         )
-        if BookService.get_id_by_isbn(params['isbn']):
-            return None  # noqa
+
         db.session.add(new_book)
         db.session.commit()
 

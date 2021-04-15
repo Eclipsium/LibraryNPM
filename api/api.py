@@ -1,8 +1,5 @@
-import json
-
 from flask import Blueprint, request
 from marshmallow import ValidationError
-from .. import db
 
 from .models import Book
 from .schema import BookSchema
@@ -13,7 +10,7 @@ books_schema = BookSchema(many=True)
 book_schema = BookSchema()
 
 
-@book_bp.route("/", methods=['GET'])
+@book_bp.route("/book", methods=['GET'])
 def get_books() -> books_schema:
     """Get all Books with limit"""
     limit = request.args.get('limit', default=None, type=int)
@@ -23,22 +20,19 @@ def get_books() -> books_schema:
     return {'status': 'success', 'message': result}, 200
 
 
-@book_bp.route("/", methods=['POST'])
+@book_bp.route("/book", methods=['POST'])
 def post_books() -> tuple:
     json_data = request.get_json()
-    if not json_data:
-        return {"message": "data is not provided"}, 400
-    # Validate and deserialize input
     try:
         data = book_schema.load(json_data)
     except ValidationError as err:
         return err.messages, 422
 
     # Create new book
-    if BookService.get_id_by_isbn(data['isbn']):
+    book = BookService.create(data)
+    if not book:
         return {"message": "Book with ISBN already exist"}, 409
 
-    book = BookService.create(data)
     result = book_schema.dump(Book.query.get(book.book_id))
     return {"message": "Created new book.", "book": result}, 201
 
@@ -46,21 +40,26 @@ def post_books() -> tuple:
 @book_bp.route("/book/<book_id>", methods=['GET'])
 def detail_book(book_id) -> tuple:
     book = BookService.get_book_by_id(book_id)
-    result = book_schema.dump(book)
-    return {"message": "Ok", "book": result}, 200
+    if book:
+        result = book_schema.dump(book)
+        return {"message": "Ok", "book": result}, 200
+    else:
+        return {"message": f"books with id {book_id} is not exist"}, 404
 
 
 @book_bp.route("/book/<book_id>", methods=['PUT', 'PATCH'])
 def update_book(book_id) -> tuple:
     json_data = request.get_json()
-    if not json_data:
-        return {"message": "data is not provided"}, 400
+    try:
+        data = book_schema.load(json_data)
+    except ValidationError as err:
+        return err.messages, 422
 
     book = BookService.get_book_by_id(book_id)
     if not book:
         return {"message": f"books with id {book_id} is not exist"}, 404
 
-    isbn_id = BookService.get_id_by_isbn(json_data['isbn'])
+    isbn_id = BookService.get_id_by_isbn(data['isbn'])
     # Если isbn существует, и не совпадает с book_id
     if isbn_id and isbn_id != int(book_id):
         return {"message": f"books with isbn #{isbn_id} already exist"}, 409
